@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>認可コード</title>
+<style>
+  :root {
+    --bg: #fbfbfa; --fg: #1a1a19; --muted: #6b6b68;
+    --card: #ffffff; --line: #e4e4e1; --accent: #2f6f4f; --warn: #8a3d2a;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #17171a; --fg: #ececea; --muted: #9a9a96;
+      --card: #202024; --line: #34343a; --accent: #7fbf9b; --warn: #e0917c;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: 24px 16px 48px;
+    background: var(--bg); color: var(--fg);
+    font: 16px/1.7 -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", sans-serif;
+  }
+  main { max-width: 640px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p.lead { color: var(--muted); margin: 0 0 24px; font-size: 14px; }
+  .card {
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 10px; padding: 16px; margin-bottom: 16px;
+  }
+  .label {
+    font-size: 12px; letter-spacing: .04em; color: var(--muted);
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+  code#code {
+    display: block; font-size: 15px; line-height: 1.5;
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    word-break: break-all; user-select: all; -webkit-user-select: all;
+  }
+  button {
+    -webkit-appearance: none; appearance: none; cursor: pointer;
+    width: 100%; margin-top: 14px; padding: 13px 16px;
+    font-size: 16px; font-weight: 600; font-family: inherit;
+    color: #fff; background: var(--accent);
+    border: 0; border-radius: 8px;
+  }
+  button:active { opacity: .8; }
+  ol { padding-left: 1.3em; margin: 0; }
+  ol li { margin-bottom: 6px; }
+  ol li:last-child { margin-bottom: 0; }
+  .warn { color: var(--warn); font-weight: 600; }
+  .note { font-size: 13px; color: var(--muted); }
+  a { color: inherit; }
+</style>
+</head>
+<body>
+<main>
+  <h1>認可コード</h1>
+  <p class="lead">Oura の承認が完了しました。</p>
+
+  <div id="ok" hidden>
+    <div class="card">
+      <div class="label">code</div>
+      <code id="code"></code>
+      <button id="copy" type="button">コードをコピー</button>
+    </div>
+    <div class="card">
+      <div class="label">次にやること</div>
+      <ol>
+        <li>GitHub の Actions → <b>Oura Authorize (OAuth2)</b> を開く</li>
+        <li>Run workflow → mode を <b>exchange</b> に</li>
+        <li>code 欄に上のコードを貼って実行</li>
+      </ol>
+      <p class="note" style="margin-bottom:0">
+        <span class="warn">コードは数分で失効します。</span>
+        間に合わなかったら認可からやり直してください。
+      </p>
+    </div>
+  </div>
+
+  <div id="ng" hidden>
+    <div class="card">
+      <div class="label">結果</div>
+      <p id="ngmsg" style="margin:0"></p>
+    </div>
+  </div>
+
+  <p class="note">
+    このページはURLに付いてきた値を表示しているだけで、どこにも送信していません。
+  </p>
+</main>
+
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var code = q.get("code");
+  var err = q.get("error");
+
+  if (code) {
+    document.getElementById("code").textContent = code;
+    document.getElementById("ok").hidden = false;
+    document.getElementById("copy").addEventListener("click", function () {
+      var btn = this;
+      var done = function () { btn.textContent = "コピーしました"; };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).then(done, function () {
+          btn.textContent = "コピーできません。上の文字を長押しして選択してください";
+        });
+      } else {
+        btn.textContent = "コピーできません。上の文字を長押しして選択してください";
+      }
+    });
+    return;
+  }
+
+  var msg;
+  if (err) {
+    msg = "認可が失敗しました: " + err;
+    var d = q.get("error_description");
+    if (d) msg += " (" + d + ")";
+  } else {
+    msg = "URLに code が付いていません。Oura の承認画面から遷移してきたか確認してください。";
+  }
+  document.getElementById("ngmsg").textContent = msg;
+  document.getElementById("ng").hidden = false;
+})();
+</script>
+</body>
+</html>
