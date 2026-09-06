@@ -17,12 +17,17 @@ OAuth2 の戻り先ページ。URLに付いてきた `?code=` を画面に表示
 アプリにはアドレス欄が無いので `?code=` を読む手段がなくなる。`github.io` は
 アプリの対象外なので必ずブラウザで開き、このページがコードを表示できる。
 
-配信は GitHub Pages。URLは
-`https://kemion0430.github.io/oura-app-policy/callback.html`。
+**現在このページは配信していない。** GitHub Pages を有効にすれば
+`https://kemion0430.github.io/oura-app-policy/callback.html` で使えるが、
+2026-09-06 時点で有効化できていない。
 
-**有効化は Settings ではなく `.github/workflows/pages.yml` で行う。**
-GitHub のスマホアプリにはリポジトリの Settings が無いため、設定画面に辿り
-着けないことがある。`actions/configure-pages` の `enablement` が、Pages が
-未作成なら API で作成する。main への push か、Actions からの手動実行で走る。
+- スマホの GitHub アプリにはリポジトリの Settings が無い
+- ブラウザの Settings → Pages でブランチを選んで保存しても反映されなかった
+- ワークフローからの有効化（`actions/configure-pages` の `enablement`）は
+  `Resource not accessible by integration` で失敗する。**`GITHUB_TOKEN` は
+  Pages サイトを新規作成できない**（デプロイはできるが作成には管理者権限が要る）
+
+PCから Settings → Pages を操作できるときに有効化すれば、このページはそのまま使える。
+それまでの戻り先は `https://httpbin.org/get`。
 
 連絡先: mr.meganen@gmail.com
